@@ -29,35 +29,50 @@
 <script>
     import Todo from './Todo.vue'
     import CreateTodo from './CreateTodo.vue'
+    import { mapActions, mapState } from 'vuex'
+    import { todos } from '@/store/selectors'
+    import { A_ADD_TODO, A_DELETE_TODO, A_EDIT_TODO, A_UPDATE_TODOS } from '@/store/types'
 
     export default {
+        components: { Todo, CreateTodo },
         props: {
-            listName: String,
+            listName: String
         },
-        data() {
-            return {
-                todos: [
-                    { description: 'Learn Vue', completed: false },
-                    { description: 'Install Vuex', completed: false },
-                    { description: 'Dispatch Actions', completed: false },
-                ],
-            }
+        computed: {
+            ...mapState({
+                todos,
+            }),
+        },
+        mounted() {
+            // Initialize to-do list with some data
+            this.dispatchUpdateTodos([
+                { description: 'Learn Vue', completed: false },
+                { description: 'Install Vuex', completed: false },
+                { description: 'Dispatch Actions', completed: false }
+            ])
         },
         methods: {
+            ...mapActions({
+                dispatchUpdateTodos: A_UPDATE_TODOS,
+                dispatchAddTodo: A_ADD_TODO,
+                dispatchEditTodo: A_EDIT_TODO,
+                dispatchDeleteTodo: A_DELETE_TODO,
+            }),
             addTodo(newTodo) {
-                this.todos.push({ description: newTodo, completed: false })
+                this.dispatchAddTodo({ description: newTodo, completed: false })
             },
             toggleTodo(todo) {
                 todo.completed = !todo.completed
+                this.dispatchEditTodo(todo)
             },
             deleteTodo(deletedTodo) {
-                this.todos = this.todos.filter(todo => todo !== deletedTodo)
+                this.dispatchDeleteTodo(deletedTodo)
             },
             editTodo(todo, newTodoDescription) {
                 todo.description = newTodoDescription
+                this.dispatchEditTodo(todo)
             },
         },
-        components: { Todo, CreateTodo },
     }
 </script>
 
